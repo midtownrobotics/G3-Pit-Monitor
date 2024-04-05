@@ -14,7 +14,7 @@ function TBHAPI(theUrl){
     return JSON.parse(xmlHttp.responseText);
 }
 
-function getRemainingMatches() {
+function getMatches() {
     
     let matches = TBHAPI('/event/2024gacmp/matches')
 
@@ -30,19 +30,27 @@ function getRemainingMatches() {
 
     matches = matches.sort(compareByTime)
 
-    let newMatches = [];
+    let upcomingMatches = [];
 
     for (let i = 0; i < matches.length; i++) {
         if (matches[i].actual_time == null) {
-            newMatches.push(matches[i])
+            upcomingMatches.push(matches[i])
         }
     }
 
-    return newMatches;
+    let pastMatches = [];
+
+    for (let i = 0; i < matches.length; i++) {
+        if (matches[i].actual_time !== null) {
+            pastMatches.push(matches[i])
+        }
+    }
+
+    return {past: pastMatches, upcoming: upcomingMatches};
 }
 
 app.get('/dash', function(req, res) {
-    res.render('dash', {matches: getRemainingMatches(), status: TBHAPI('/event/2024gacmp/teams/statuses').frc1648, rankings: TBHAPI('/event/2024gacmp/rankings').rankings});
+    res.render('dash', {matches: getMatches().upcoming, past: getMatches().past, status: TBHAPI('/event/2024gacmp/teams/statuses').frc1648, rankings: TBHAPI('/event/2024gacmp/rankings').rankings});
 })
 
 app.get('/', function(req, res) {

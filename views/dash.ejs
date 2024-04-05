@@ -6,29 +6,29 @@
     </head>
     <body>
         <table class="table table-hover table-bordered">
-            <thead style="position:sticky; top: 0; font-weight: 700;">
+            <thead class="top" style="position:sticky; top: 0; font-weight: 700;">
                 <td style="width: 100px;">
                     Number
                 </td>
                 <td style="width: 100px;">
                     Time
                 </td>
-                <td>
+                <td class="table-primary">
                     Blue 1
                 </td>
-                <td>
+                <td class="table-primary">
                     Blue 2
                 </td>
-                <td>
+                <td class="table-primary">
                     Blue 3
                 </td>
-                <td>
+                <td class="table-danger">
                     Red 1
                 </td>
-                <td>
+                <td class="table-danger">
                     Red 2
                 </td>
-                <td>
+                <td class="table-danger">
                     Red 3
                 </td>
             </thead>
@@ -49,7 +49,8 @@
                         class="table-primary" 
                     <% } else if (red.includes("1648")) { %> 
                         class="table-danger" 
-                    <% } %>" 
+                    <% } %>
+                    <% if (blue.includes("1648") || red.includes("1648")) { %> style="border-width:3px;" <% } %>
                 >
 
                     <td>
@@ -59,9 +60,11 @@
                         <% const time = new Date(matches[i].predicted_time * 1000)
                            let weekday= ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
                            let day = weekday[time.getDay()]
+                           let hour;
+                           if (time.getHours() > 12) {hour = time.getHours() - 12} else {hour = time.getHours()}
                            let minutes;
                            if (time.getMinutes() < 10) {minutes = "0" + time.getMinutes()} else {minutes = time.getMinutes()}
-                           const formattedTime = `${day} ${time.getHours()}:${minutes}`
+                           const formattedTime = `${day} ${hour}:${minutes}`
                         %>
 
                         <%= formattedTime %>
@@ -86,6 +89,92 @@
                     </td>
                 </tr>
             <% } %>
+
+            <tr>
+                <td colspan="8" style="text-align: center;" class="table-warning">
+                    PAST MATCHES
+                </td>
+            </tr>
+
+            <% for (i = 0; i < past.length; i++) { %>
+                <% 
+                const blueStart = past[i].alliances.blue.team_keys
+                const redStart = past[i].alliances.red.team_keys
+                const blueScore = past[i].score_breakdown.blue
+                const redScore = past[i].score_breakdown.red 
+                %>
+
+                <% let blue = []; let red = [];
+                   blue.push(blueStart[0].substring(3))
+                   blue.push(blueStart[1].substring(3))
+                   blue.push(blueStart[2].substring(3))
+                   red.push(redStart[0].substring(3))
+                   red.push(redStart[1].substring(3))
+                   red.push(redStart[2].substring(3))
+                %>
+                <tr class="pastMatchRow" <% if (blue.includes("1648") || red.includes("1648")) { %> style="border-width:3px;" <% } %>>
+
+                    <td <% if (blue.includes("1648")) { %> 
+                        class="table-primary" 
+                    <% } else if (red.includes("1648")) { %> 
+                        class="table-danger" 
+                    <% } %>>
+                        <%= past[i].match_number %>
+                    </td>
+                    <td <% if (blue.includes("1648")) { %> 
+                        class="table-primary" 
+                    <% } else if (red.includes("1648")) { %> 
+                        class="table-danger" 
+                    <% } %>>
+                        <% const time = new Date(past[i].actual_time * 1000)
+                           let weekday= ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                           let day = weekday[time.getDay()]
+                           let hour;
+                           if (time.getHours() > 12) {hour = time.getHours() - 12} else {hour = time.getHours()}
+                           let minutes;
+                           if (time.getMinutes() < 10) {minutes = "0" + time.getMinutes()} else {minutes = time.getMinutes()}
+                           const formattedTime = `${day} ${hour}:${minutes}`
+                        %>
+
+                        <%= formattedTime %>
+                    </td>
+                    <td <% if (blue[0] == "1648") { %> style="font-weight: bold;" <% } if (blueScore.totalPoints > redScore.totalPoints) { %> class="table-success" <% } %>>
+                        <%= blue[0] %>
+                    </td>
+                    <td <% if (blue[1] == "1648") { %> style="font-weight: bold;" <% } if (blueScore.totalPoints > redScore.totalPoints) { %> class="table-success" <% } %>>
+                        <%= blue[1] %>
+                    </td>
+                    <td <% if (blue[2] == "1648") { %> style="font-weight: bold;" <% } if (blueScore.totalPoints > redScore.totalPoints) { %> class="table-success" <% } %>>
+                        <%= blue[2] %>
+                    </td>
+                    <td <% if (red[0] == "1648") { %> style="font-weight: bold;" <% } if (redScore.totalPoints > blueScore.totalPoints) { %> class="table-success" <% } %>>
+                        <%= red[0] %>
+                    </td>
+                    <td <% if (red[1] == "1648") { %> style="font-weight: bold;" <% } if (redScore.totalPoints > blueScore.totalPoints) { %> class="table-success" <% } %>>
+                        <%= red[1] %>
+                    </td>
+                    <td <% if (red[2] == "1648") { %> style="font-weight: bold;" <% } if (redScore.totalPoints > blueScore.totalPoints) { %> class="table-success" <% } %>>
+                        <%= red[2] %>
+                    </td>
+                </tr>
+                <tr style="display: none;">
+                    <td colspan="2">
+                        Info:
+                    </td>
+                    <td colspan="3">
+                        Total Points: <%= blueScore.totalPoints %><br>
+                        Teleop Points: <%= blueScore.teleopPoints %><br>
+                        Stage Points: <%= blueScore.endGameTotalStagePoints %><br>
+                        Auton Points: <%= blueScore.autoPoints %>
+                    </td>
+                    <td colspan="3">
+                        Total Points: <%= redScore.totalPoints %><br>
+                        Teleop Points: <%= redScore.teleopPoints %><br>
+                        Stage Points: <%= redScore.endGameTotalStagePoints %><br>
+                        Auton Points: <%= redScore.autoPoints %>
+                    </td>
+                </tr>
+            <% } %>
         </table>
         <info>
             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1-uChCB6_pq0ntN7u73N1EAnWLs1GkKa8YQUMusoF0Q&s">
@@ -102,6 +191,7 @@
             <% } %>
         </info>
         <fullscreen>
+            <i id="rlp" class="bi bi-arrow-clockwise"></i>
             <i id="fs-o" class="bi bi-fullscreen"></i>
             <i id="fs-c" style="display: none;" class="bi bi-fullscreen-exit"></i>
         </fullscreen>
@@ -111,6 +201,12 @@
 <style>
     table {
         width: 80% !important;
+    }
+
+    td {
+        word-wrap: break-word;
+        max-width: 10vw;
+
     }
 
     info {
@@ -145,6 +241,10 @@
     fullscreen:hover {
         cursor: pointer;
     }
+
+    .pastMatchRow {
+        cursor: pointer;
+    }
 </style>
 
 <script>
@@ -163,4 +263,11 @@
     $('#fs-c, #fs-o').on('click', function() {
         toggleFullscreen()
     })
+
+    // $(document).ready(function () {
+    //     if($("tbody").children()[0].children()[0] == $(".table-primary")[0].children()[0]-3) {
+    //         $(".top").css("background-color", "red");
+    //     }
+        
+    // })
 </script>
