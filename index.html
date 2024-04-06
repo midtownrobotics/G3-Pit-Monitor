@@ -1,13 +1,31 @@
 <html>
     <head>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
         <title>G3 Big Screen!</title>
     </head>
     <body>
         <iframe id="frame" src="/dash"></iframe>
+        <div id="reloadAndFullcontainer">
+            <i id="rlp" class="bi bi-arrow-clockwise stuff"></i>
+            <fullscreen>
+                <i id="fs-o" class="bi bi-fullscreen"></i>
+                <i id="fs-c" style="display: none;" class="bi bi-fullscreen-exit"></i>
+            </fullscreen>
+        </div>
     </body>
 </html>
 
 <style>
+    #reloadAndFullcontainer {
+        position: absolute;
+        background-color: ivory;
+        border: 1px black;
+        width: 20px;
+        height: 18px;
+        z-index: 3;
+    }
+
     body {
         width: 100%;
         height: 100%;
@@ -16,11 +34,40 @@
         overflow: hidden;
     }
 
+    fullscreen {
+        position: absolute;
+        right: 10px;
+        top: 0px;
+        margin-top: 10px;
+        margin-right: 10px;
+        font-weight: bold;
+    }
+
+    fullscreen:hover {
+        cursor: pointer;
+    }
+
     iframe {
         width: 100%;
         height: 100%;
         border: 0;
         margin: none;
+    }
+
+    i {
+        z-index: 5;
+    }
+
+    .stuff {
+        position: absolute;
+        top: 10px;
+        right: 50px;
+        height: 16px;
+        width: 16px;
+    }
+
+    i:hover {
+        cursor: pointer;
     }
 </style>
 
@@ -28,4 +75,8 @@
     setInterval(function(){
         document.getElementById('frame').contentWindow.location.reload();
     }, (1 * 60 * 1000))
+
+    $("#rpl").on('click', function() {
+        document.getElementById('frame').contentWindow.location.reload();
+    })
 </script>

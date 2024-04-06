@@ -157,7 +157,7 @@
                         <%= red[2] %>
                     </td>
                 </tr>
-                <tr style="display: none;">
+                <tr style="display: none;" class="no-hover-effect">
                     <td colspan="2">
                         Info:
                     </td>
@@ -190,11 +190,6 @@
                 </p>
             <% } %>
         </info>
-        <fullscreen>
-            <i id="rlp" class="bi bi-arrow-clockwise"></i>
-            <i id="fs-o" class="bi bi-fullscreen"></i>
-            <i id="fs-c" style="display: none;" class="bi bi-fullscreen-exit"></i>
-        </fullscreen>
     </body>
 </html>
 
@@ -229,18 +224,6 @@
         font-size: 20px;
     }
 
-    fullscreen {
-        position: absolute;
-        right: 0px;
-        top: 0px;
-        margin-top: 10px;
-        margin-right: 10px;
-        font-weight: bold;
-    }
-
-    fullscreen:hover {
-        cursor: pointer;
-    }
 
     .pastMatchRow {
         cursor: pointer;
@@ -262,6 +245,10 @@
 
     $('#fs-c, #fs-o').on('click', function() {
         toggleFullscreen()
+    })
+
+    $('.pastMatchRow').on('click', function() {
+        $(this).next().slideToggle(0)
     })
 
     // $(document).ready(function () {
