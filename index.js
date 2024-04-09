@@ -1,10 +1,13 @@
 const express = require('express');
 const app = express();
 const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+const fs = require('fs');
 
 const PORT = 8080
 app.set('views', 'views');
 app.set('view engine', 'ejs');
+
+const EVENT_KEY = fs.readFileSync(__dirname + '/PUT-EVENT-KEY-HERE.txt').toString();
 
 function TBHAPI(theUrl){
     const parsedUrl = "https://www.thebluealliance.com/api/v3" + theUrl + "?X-TBA-Auth-Key=LVDMCD06pMcEyS94sswn0hp8mGup9P2vfYhXZ6MgTgWt5oLzlNCP3RdBsm41g8Zs"
@@ -16,7 +19,7 @@ function TBHAPI(theUrl){
 
 function getMatches() {
     
-    let matches = TBHAPI('/event/2024gacmp/matches')
+    let matches = TBHAPI(`/event/${EVENT_KEY}/matches`)
 
     function compareByTime(a, b) {
         if (a.predicted_time < b.predicted_time) {
@@ -50,7 +53,7 @@ function getMatches() {
 }
 
 app.get('/dash', function(req, res) {
-    res.render('dash', {matches: getMatches().upcoming, past: getMatches().past, status: TBHAPI('/event/2024gacmp/teams/statuses').frc1648, rankings: TBHAPI('/event/2024gacmp/rankings').rankings});
+    res.render('dash', {matches: getMatches().upcoming, past: getMatches().past, status: TBHAPI(`/event/${EVENT_KEY}/teams/statuses`).frc1648, rankings: TBHAPI(`/event/${EVENT_KEY}/rankings`).rankings});
 })
 
 app.get('/', function(req, res) {
