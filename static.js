@@ -52,8 +52,8 @@ function reload() {
     let status = TBHAPI(`/event/${EVENT_KEY}/teams/statuses`).frc1648 
     let rankings = TBHAPI(`/event/${EVENT_KEY}/rankings`).rankings
 
-    $("#our-rank").text(status.qual.ranking.rank)
-    $("#our-wlt").text(`${status.qual.ranking.record.wins}-${status.qual.ranking.record.losses}-${status.qual.ranking.record.ties}`)
+    $("#our-rank").text(status?.qual?.ranking?.rank)
+    $("#our-wlt").text(`${status?.qual?.ranking?.record?.wins}-${status?.qual?.ranking?.record?.losses}-${status?.qual?.ranking?.record?.ties}`)
 
 
     for (i = 0; i<rankings.length; i++) {
