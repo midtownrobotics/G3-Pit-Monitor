@@ -51,7 +51,7 @@ function reload() {
     let past = getMatches().past 
     let status = TBHAPI(`/event/${EVENT_KEY}/teams/statuses`).frc1648 
     let rankings = TBHAPI(`/event/${EVENT_KEY}/rankings`).rankings
-
+Q   
     $("#our-rank").text(status?.qual?.ranking?.rank)
     $("#our-wlt").text(`${status?.qual?.ranking?.record?.wins}-${status?.qual?.ranking?.record?.losses}-${status?.qual?.ranking?.record?.ties}`)
 
