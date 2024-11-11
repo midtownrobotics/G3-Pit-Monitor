@@ -55,6 +55,7 @@ function reloadBatteryInfo(force) {
             <div class="battery" 
             ${firstCharging == batteryInfo[i].id ? "style='background-color: #1D970F'" : ""}
             ${batteryInfo[i].state == "In Game" ? "style='background-color: #0F8597;'" : ""}
+            ${batteryInfo[i].state == "Idle" ? "style='background-color: #73643d;'" : ""}
             >
                 <h3>${batteryInfo[i].name}</h3>
                 <b>
