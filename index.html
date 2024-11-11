@@ -3,18 +3,9 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" integrity="sha384-4LISF5TTJX/fLmGSxO53rV4miRxdg84mZsxmO8Rx5jGtp/LbrixFETvWa5a6sESd" crossorigin="anonymous">
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <title>G3 Pit Monitor!!</title>
     </head>
     <body>
-        <div id="reloadAndFullcontainer">
-            <i id="rlp" class="bi bi-arrow-clockwise stuff"></i>
-            <fullscreen>
-                <i id="fs-o" class="bi bi-fullscreen"></i>
-                <i id="fs-c" style="display: none;" class="bi bi-fullscreen-exit"></i>
-            </fullscreen>
-        </div>
-        <table class="table table-hover table-bordered" id="table">
-
-        </table>
         <info>
             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1-uChCB6_pq0ntN7u73N1EAnWLs1GkKa8YQUMusoF0Q&s">
             <br>
@@ -25,18 +16,51 @@
             <hr>
             <span id="rankings"></span>
         </info>
+
+        <div id="reloadAndFullcontainer">
+            <i id="rlp" class="bi bi-arrow-clockwise stuff"></i>
+            <fullscreen>
+                <i id="fs-o" class="bi bi-fullscreen"></i>
+                <i id="fs-c" style="display: none;" class="bi bi-fullscreen-exit"></i>
+            </fullscreen>
+        </div>
+        <table class="table table-hover table-bordered" id="table">
+
+        </table>
+
+        <batteries>
+        </batteries>
     </body>
 </html>
 
 <style>
+    .battery {
+        background-color: gray;
+        margin: 10px;
+        border-radius: 10px;
+        padding-bottom: 10px;
+    }
+
+    .battery b {
+        display: block;
+        height: 10px;
+    }
+
+    .battery button {
+        border-width: 1px;
+        padding: 2px, 1px;
+    }
+
     table {
-        width: 80% !important;
+        position: absolute;
+        width: 60% !important;
+        top: 0px;
+        left: 20%;
     }
 
     td {
         word-wrap: break-word;
         max-width: 10vw;
-
     }
 
     info {
@@ -44,7 +68,15 @@
         position: absolute;
         width: 20%;
         top: 0px;
-        left: 80%;
+        left: 0px;
+    }
+
+    batteries {
+        text-align: center;
+        position: absolute;
+        width: 20%;
+        top: 0px;
+        right: 0px;
     }
 
     h1 {
@@ -59,14 +91,13 @@
         font-size: 20px;
     }
 
-
     .pastMatchRow {
         cursor: pointer;
     }
 
     #reloadAndFullcontainer {
         position: absolute;
-        right: 0px;
+        left: 40px;
         top: 0px;
         background-color: ivory;
         border: 1px black;

@@ -8,6 +8,80 @@ function TBHAPI(theUrl){
     return JSON.parse(xmlHttp.responseText);
 }
 
+const state = ["Charging", "InGame", "Idle"]
+
+function changeBatteryState(id) {
+    const stateToSet = state[document.getElementById(`state-${id}`).value]
+    postData({action: "changeBatteryState", state: stateToSet, id: id})
+}
+
+function getBatteryInfo() {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", "/battery", false);
+    xmlHttp.send( null );
+    return JSON.parse(xmlHttp.responseText);
+}
+
+let lastBatteryInfo = null;
+
+function reloadBatteryInfo(force) {
+    let batteryInfo = getBatteryInfo();
+
+    if (JSON.stringify(lastBatteryInfo) == JSON.stringify(batteryInfo) && !force) return;
+
+    console.log("Updating battery info")
+
+    lastBatteryInfo = JSON.parse(JSON.stringify(batteryInfo));
+
+    $("batteries").html("<h1 style='font-size: 50px;'>Battery Info:</h1>");
+
+    batteryInfo.sort((a,b) => {
+        if (a.state == "InGame") return -1;
+        if (b.state == "InGame") return 1;
+        if (a.state == "Idle") return 1;
+        if (b.state == "Idle") return -1;
+        return a.stateTime-b.stateTime;
+    })
+
+    let firstCharging = null;
+
+    for (i = 0; i < batteryInfo.length; i++) {
+        if (batteryInfo[i].state == "InGame") batteryInfo[i].state = "In Game";
+        if (batteryInfo[i].state == "Charging" && firstCharging == null) firstCharging = batteryInfo[i].id;
+
+        console.log(firstCharging == batteryInfo[i].id)
+
+        $("batteries").append(`
+            <div class="battery" 
+            ${firstCharging == batteryInfo[i].id ? "style='background-color: #1D970F'" : ""}
+            ${batteryInfo[i].state == "In Game" ? "style='background-color: #0F8597;'" : ""}
+            >
+                <h3>${batteryInfo[i].name}</h3>
+                <b>
+                    <span style="font-style: italic;">${batteryInfo[i].state}</span> for <span style="font-style: italic;">${Math.round((new Date().getTime() - batteryInfo[i].stateTime)/1000/60)}mins</span>
+                </b>
+                <br>
+                <button onclick="changeBatteryState(${batteryInfo[i].id})">Set state to:</button>
+                <select id="state-${batteryInfo[i].id}">
+                    <option value="0">Charging</option>
+                    <option value="1">In Game</option>
+                    <option value="2">Idle</option>
+                </select>
+            </div>    
+        `)
+    }
+
+}
+
+reloadBatteryInfo()
+
+let reloadCount = 0;
+
+setInterval(() => {
+    reloadCount++
+    reloadBatteryInfo(reloadCount % 10 == 0)
+}, 1000)
+
 function getMatches() {
     
     let matches = TBHAPI(`/event/${EVENT_KEY}/matches`)
@@ -57,8 +131,8 @@ function reload() {
 
 
     for (i = 0; i<rankings.length; i++) {
-        $("#rankings").append(`<p class="rankings">
-            ${i+1}: ${rankings[i].team_key.substring(3)}
+        $("#rankings").append(`<p class="rankings" ${rankings[i].team_key.substring(3) == "1648" ? 'style="font-weight:bold"': ''}>
+            #${i+1}: ${rankings[i].team_key.substring(3)} - ${rankings[i].extra_stats[0]} RP
         </p>`)
     }
 
@@ -241,15 +315,24 @@ function reload() {
     $('#table').append('</tbody>')
 }
 
+async function postData(data) {
+    return fetch("/", {
+        method: "POST", 
+        credentials: 'same-origin',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    }).then(res => res.json()).then(data => {
+        return data.res
+    });
+}
+
 function toggleFullscreen() {
     if (document.fullscreenElement) {
         document.exitFullscreen()
-        document.getElementById('fs-c').style.display = "none"
-        document.getElementById('fs-o').style.display = "block"
     } else {
         document.documentElement.requestFullscreen();
-        document.getElementById('fs-c').style.display = "block"
-        document.getElementById('fs-o').style.display = "none"
     }
 };
 
@@ -271,4 +354,4 @@ reload()
 
 setInterval(function(){
     reload()
-}, (1 * 60 * 1000))
+}, (30 * 1000))
