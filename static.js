@@ -30,7 +30,7 @@ function changeBatteryState(id) {
     postData({action: "changeBatteryState", state: stateToSet, id: id})
 }
 
-function getBatteryInfo() {
+async function getBatteryInfo() {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", "/battery", false);
     xmlHttp.send( null );
@@ -39,8 +39,8 @@ function getBatteryInfo() {
 
 let lastBatteryInfo = null;
 
-function reloadBatteryInfo(force) {
-    let batteryInfo = getBatteryInfo();
+async function reloadBatteryInfo(force) {
+    let batteryInfo = await getBatteryInfo();
 
     if (JSON.stringify(lastBatteryInfo) == JSON.stringify(batteryInfo) && !force) return;
 
@@ -55,7 +55,7 @@ function reloadBatteryInfo(force) {
         if (b.state == "InGame") return 1;
         if (a.state == "Idle") return 1;
         if (b.state == "Idle") return -1;
-        return a.stateTime-b.stateTime;
+        return a.time-b.time;
     })
 
     let firstCharging = null;
@@ -74,7 +74,7 @@ function reloadBatteryInfo(force) {
             >
                 <h3>${batteryInfo[i].name}</h3>
                 <b>
-                    <span style="font-style: italic;">${batteryInfo[i].state}</span> for <span style="font-style: italic;">${Math.round((new Date().getTime() - batteryInfo[i].stateTime)/1000/60)}mins</span>
+                    <span style="font-style: italic;">${batteryInfo[i].state}</span> for <span style="font-style: italic;">${Math.round((new Date().getTime() - new Date(batteryInfo[i].time))/1000/60)}mins</span>
                 </b>
                 <br>
                 <button onclick="changeBatteryState(${batteryInfo[i].id})">Set state to:</button>
@@ -89,7 +89,7 @@ function reloadBatteryInfo(force) {
 
 }
 
-reloadBatteryInfo()
+setTimeout(reloadBatteryInfo, 1000)
 
 let reloadCount = 0;
 
