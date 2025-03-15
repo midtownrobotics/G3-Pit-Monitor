@@ -1,21 +1,26 @@
 const EVENT_KEY = "2025gadal"
 
-function TBHAPI(theUrl){
+async function TBHAPI(theUrl){
     const parsedUrl = "https://www.thebluealliance.com/api/v3" + theUrl + "?X-TBA-Auth-Key=LVDMCD06pMcEyS94sswn0hp8mGup9P2vfYhXZ6MgTgWt5oLzlNCP3RdBsm41g8Zs"
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", parsedUrl, false);
-    xmlHttp.send( null );
-    return JSON.parse(xmlHttp.responseText);
+    var response = await fetch(parsedUrl, { method: "GET" })
+    var text = await response.text()
+    var data = JSON.parse(text);
+    console.log(data)
+    return data
 }
 
-function STATBOTICS(){
+async function STATBOTICS(){
     const url = "https://api.statbotics.io/v3/team_event/1648/"+EVENT_KEY;
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", url, false);
-    xmlHttp.setRequestHeader('accept', 'application/json');
-    xmlHttp.send( null );
-    var data = JSON.parse(xmlHttp.responseText);
-    return data?.epa?.breakdown;
+    var response = await fetch(url, {
+        method: "GET",
+        headers: {
+            "Accept": "application/json"
+        }
+    })
+    var text = await response.text()
+    var data = JSON.parse(text)
+    console.log(data.epa.breakdown)
+    return data.epa.breakdown
 }
 
 const state = ["Charging", "InGame", "Idle"]
@@ -59,7 +64,7 @@ function reloadBatteryInfo(force) {
         if (batteryInfo[i].state == "InGame") batteryInfo[i].state = "In Game";
         if (batteryInfo[i].state == "Charging" && firstCharging == null) firstCharging = batteryInfo[i].id;
 
-        console.log(firstCharging == batteryInfo[i].id)
+        // console.log(firstCharging == batteryInfo[i].id)
 
         $("batteries").append(`
             <div class="battery" 
@@ -93,9 +98,9 @@ setInterval(() => {
     reloadBatteryInfo(reloadCount % 10 == 0)
 }, 1000)
 
-function getMatches() {
+async function getMatches() {
     
-    let matches = TBHAPI(`/event/${EVENT_KEY}/matches`)
+    let matches = await TBHAPI(`/event/${EVENT_KEY}/matches`)
 
     function compareByTime(a, b) {
         if (a.predicted_time < b.predicted_time) {
@@ -128,25 +133,29 @@ function getMatches() {
     return {past: pastMatches, upcoming: upcomingMatches};
 }
 
-function reload() {
+async function reload() {
     $('#table').html('')
     $("#rankings").html("")
-
-    let matches = getMatches().upcoming
-    let past = getMatches().past 
-    let status = TBHAPI(`/event/${EVENT_KEY}/teams/statuses`).frc1648 
-    let rankings = TBHAPI(`/event/${EVENT_KEY}/rankings`).rankings
-    let epa = STATBOTICS()
+    let allMatches = await getMatches()
+    let matches = allMatches.upcoming
+    let past = allMatches.past
+    let status = await TBHAPI(`/event/${EVENT_KEY}/teams/statuses`)
+    status = status.frc1648
+    let rankings = await TBHAPI(`/event/${EVENT_KEY}/rankings`)
+    rankings = rankings.rankings
+    let epa = STATBOTICS().then(epa => {
+        $("#total-epa").text(epa?.total_points)
+        $("#auton-epa").text(epa?.auto_points)
+        $("#teleop-epa").text(epa?.teleop_points)
+        $("#endgame-epa").text(epa?.endgame_points)
+    })
    
     $("#our-rank").text(status?.qual?.ranking?.rank)
     $("#our-wlt").text(`${status?.qual?.ranking?.record?.wins}-${status?.qual?.ranking?.record?.losses}-${status?.qual?.ranking?.record?.ties}`)
-    $("#total-epa").text(epa?.total_points)
-    $("#auton-epa").text(epa?.auto_points)
-    $("#teleop-epa").text(epa?.teleop_points)
-    $("#endgame-epa").text(epa?.endgame_points)
+    
 
 
-    for (i = 0; i<rankings.length; i++) {
+    for (i = 0; i<rankings?.length; i++) {
         $("#rankings").append(`<p class="rankings" ${rankings[i].team_key.substring(3) == "1648" ? 'style="font-weight:bold"': ''}>
             #${i+1}: ${rankings[i].team_key.substring(3)} - ${rankings[i].extra_stats[0]} RP
         </p>`)
@@ -182,7 +191,7 @@ function reload() {
         <tbody>`
     )
 
-    for (i = 0; i < matches.length; i++) {
+    for (i = 0; i < matches?.length; i++) {
         let toAppend = "";
 
         const time = new Date(matches[i].predicted_time * 1000)
@@ -249,7 +258,9 @@ function reload() {
         </tr>
     `)
 
-    for (i = 0; i < past.length; i++) {
+    console.log(past?.length)
+
+    for (i = 0; i < past?.length; i++) {
         
         const blueStart = past[i].alliances.blue.team_keys
         const redStart = past[i].alliances.red.team_keys
@@ -312,14 +323,14 @@ function reload() {
                 </td>
                 <td colspan="3">
                     Total Points: ${ blueScore.totalPoints }<br>
-                    Teleop Points: ${ blueScore.teleopPoints }<br>
-                    Stage Points: ${ blueScore.endGameTotalStagePoints }<br>
+                    Teleop Points: ${ blueScore.teleopPoints - blueScore.endGameBargePoints }<br>
+                    Endgame Points: ${ blueScore.endGameBargePoints }<br>
                     Auton Points: ${ blueScore.autoPoints }
                 </td>
                 <td colspan="3">
                     Total Points: ${ redScore.totalPoints }<br>
-                    Teleop Points: ${ redScore.teleopPoints }<br>
-                    Stage Points: ${ redScore.endGameTotalStagePoints }<br>
+                    Teleop Points: ${ redScore.teleopPoints - redScore.endGameBargePoints }<br>
+                    Endgame Points: ${ redScore.endGameBargePoints }<br>
                     Auton Points: ${ redScore.autoPoints }
                 </td>
             </tr>`
@@ -329,7 +340,23 @@ function reload() {
     }
 
     $('#table').append('</tbody>')
+
+    $('.pastMatchRow').off()
+    $('.pastMatchRow').on('click', function() {
+        $(this).next().slideToggle(0)
+    })
+    
 }
+
+$(document).on('ready', () => {
+    $('#fs-c, #fs-o').on('click', function() {
+        toggleFullscreen()
+    })
+
+    $("#rpl").on('click', function() {
+        reload()
+    })
+})
 
 async function postData(data) {
     return fetch("/", {
@@ -351,20 +378,6 @@ function toggleFullscreen() {
         document.documentElement.requestFullscreen();
     }
 };
-
-$(document).ready(function(){
-    $('#fs-c, #fs-o').on('click', function() {
-        toggleFullscreen()
-    })
-
-    $('.pastMatchRow').on('click', function() {
-        $(this).next().slideToggle(0)
-    })
-    
-    $("#rpl").on('click', function() {
-        reload()
-    })
-})
 
 reload()
 
