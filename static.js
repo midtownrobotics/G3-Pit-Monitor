@@ -1,4 +1,4 @@
-const EVENT_KEY = "2024gagr"
+const EVENT_KEY = "2025gadal"
 
 function TBHAPI(theUrl){
     const parsedUrl = "https://www.thebluealliance.com/api/v3" + theUrl + "?X-TBA-Auth-Key=LVDMCD06pMcEyS94sswn0hp8mGup9P2vfYhXZ6MgTgWt5oLzlNCP3RdBsm41g8Zs"
@@ -6,6 +6,16 @@ function TBHAPI(theUrl){
     xmlHttp.open( "GET", parsedUrl, false);
     xmlHttp.send( null );
     return JSON.parse(xmlHttp.responseText);
+}
+
+function STATBOTICS(){
+    const url = "https://api.statbotics.io/v3/team_event/1648/"+EVENT_KEY;
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", url, false);
+    xmlHttp.setRequestHeader('accept', 'application/json');
+    xmlHttp.send( null );
+    var data = JSON.parse(xmlHttp.responseText);
+    return data?.epa?.breakdown;
 }
 
 const state = ["Charging", "InGame", "Idle"]
@@ -126,9 +136,14 @@ function reload() {
     let past = getMatches().past 
     let status = TBHAPI(`/event/${EVENT_KEY}/teams/statuses`).frc1648 
     let rankings = TBHAPI(`/event/${EVENT_KEY}/rankings`).rankings
+    let epa = STATBOTICS()
    
     $("#our-rank").text(status?.qual?.ranking?.rank)
     $("#our-wlt").text(`${status?.qual?.ranking?.record?.wins}-${status?.qual?.ranking?.record?.losses}-${status?.qual?.ranking?.record?.ties}`)
+    $("#total-epa").text(epa?.total_points)
+    $("#auton-epa").text(epa?.auto_points)
+    $("#teleop-epa").text(epa?.teleop_points)
+    $("#endgame-epa").text(epa?.endgame_points)
 
 
     for (i = 0; i<rankings.length; i++) {
