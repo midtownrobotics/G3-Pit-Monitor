@@ -5,13 +5,14 @@ const PORT = 8004;
 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+app.use(express.static("./static"))
 
 app.get('/', function(req, res) {
-    res.sendFile(__dirname + "/index.html")
+    res.sendFile(__dirname + "/simple.html")
 })
 
-app.get('/static.js', function(req, res) {
-    res.sendFile(__dirname + "/static.js")
+app.get('/dash', function(req, res) {
+    res.sendFile(__dirname + "/dash.html")
 })
 
 app.get('/battery', function(req, res) {
@@ -36,7 +37,7 @@ app.listen(PORT);
 
 let batteries = []
 
-const state = ["Charging", "InGame", "Idle"]
+const state = ["Charging", "InGame", "Idle", "Evil"]
 
 function addBattery(name) {
     batteries.push({
@@ -47,11 +48,11 @@ function addBattery(name) {
     })
 }
 
-addBattery("A")
-addBattery("B")
-addBattery("C")
-addBattery("D")
-addBattery("E")
-addBattery("F")
-addBattery("G")
-addBattery("H")
+addBattery("Tzatziki")
+addBattery("Mustard")
+addBattery("Mayo")
+addBattery("Ketchup")
+addBattery("BBQ")
+addBattery("Soy Sauce")
+addBattery("Sriracha")
+addBattery("Ranch")

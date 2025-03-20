@@ -1,4 +1,4 @@
-const EVENT_KEY = "2024gagr"
+const EVENT_KEY = "2025gadal"
 
 function TBHAPI(theUrl){
     const parsedUrl = "https://www.thebluealliance.com/api/v3" + theUrl + "?X-TBA-Auth-Key=LVDMCD06pMcEyS94sswn0hp8mGup9P2vfYhXZ6MgTgWt5oLzlNCP3RdBsm41g8Zs"
@@ -8,7 +8,7 @@ function TBHAPI(theUrl){
     return JSON.parse(xmlHttp.responseText);
 }
 
-const state = ["Charging", "InGame", "Idle"]
+const state = ["Charging", "InGame", "Idle", "Evil"]
 
 function changeBatteryState(id) {
     const stateToSet = state[document.getElementById(`state-${id}`).value]
@@ -38,6 +38,8 @@ function reloadBatteryInfo(force) {
     batteryInfo.sort((a,b) => {
         if (a.state == "InGame") return -1;
         if (b.state == "InGame") return 1;
+        if (a.state == "Evil") return 1;
+        if (b.state == "Evil") return -1;
         if (a.state == "Idle") return 1;
         if (b.state == "Idle") return -1;
         return a.stateTime-b.stateTime;
@@ -56,6 +58,7 @@ function reloadBatteryInfo(force) {
             ${firstCharging == batteryInfo[i].id ? "style='background-color: #1D970F'" : ""}
             ${batteryInfo[i].state == "In Game" ? "style='background-color: #0F8597;'" : ""}
             ${batteryInfo[i].state == "Idle" ? "style='background-color: #73643d;'" : ""}
+            ${batteryInfo[i].state == "Evil" ? "style='background-color: #FF0000;'" : ""}
             >
                 <h3>${batteryInfo[i].name}</h3>
                 <b>
@@ -67,6 +70,7 @@ function reloadBatteryInfo(force) {
                     <option value="0">Charging</option>
                     <option value="1">In Game</option>
                     <option value="2">Idle</option>
+                    <option value="3">Evil</option>
                 </select>
             </div>    
         `)
