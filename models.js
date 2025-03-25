@@ -2,8 +2,10 @@ const { Sequelize, DataTypes } = require('sequelize')
 
 const sequelize = new Sequelize({
     dialect: "sqlite",
-    storage: "./database.sqlite"
+    storage: "./database.sqlite",
+    logging: false
 });
+
 const Battery = sequelize.define("Battery", {
     name: {
         type: DataTypes.STRING,

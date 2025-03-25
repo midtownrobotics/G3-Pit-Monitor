@@ -2,7 +2,7 @@ const express = require('express');
 const { Battery, sequelize } = require('./models');
 const app = express();
 
-const PORT = 8004;
+const PORT = 8007;
 
 // (async () => {
 //     try {
@@ -53,7 +53,7 @@ let batteries = []
 const state = ["Charging", "InGame", "Idle", "Evil"]
 
 async function addBattery(name) {
-    var [battery, created] = await Battery.findOrCreate({
+    await Battery.findOrCreate({
         where: {name: name},
         defaults: {
             state: state[2], 
